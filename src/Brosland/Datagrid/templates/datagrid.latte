@@ -1,0 +1,63 @@
+{snippet datagrid}
+	<div id="{$control->uniqueId}" class="grid clearfix">
+	{if $customTemplatePath}{includeblock $customTemplatePath}{/if}
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				{foreach $columns as $name => $column}
+					<th class="column-{$name}">
+						<a n:tag-if="$column->sortable" n:href="sort!, [$name => $control->getNextSortType($name)]" class="ajax clearfix">
+							{ifset #head-label-$name}
+								{include #"head-label-{$name}" column => $column, iterator => $iterator}
+							{else}
+								<span class="pull-left">{_$column->label}</span>
+							{/ifset}
+							<span n:if="isset($control->sortBy[$name])" class="pull-right fa fa-caret-{if $control->sortBy[$name] == $control::SORT_ASC}up{else}down{/if}"></span>
+						</a>
+					</th>
+				{/foreach}
+				<th n:ifset="#cell-actions">{ifset #head-cell-actions}{include #head-cell-actions}{/ifset}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{foreach $data as $row}
+				{ifset #row}
+					{include #row, row => $row, iterator => $iterator}
+				{else}
+					<tr id="row{$control->getRowIdentifier($row, $iterator)}">
+						{foreach $columns as $name => $column}
+							{ifset #col-$name}
+								{include #"col-{$name}" row => $row, column => $column, iterator => $iterator}
+							{else}
+								<td class="column-{$name}">
+									{ifset #cell-$name}
+										{include #"cell-{$name}" row => $row, column => $column, iterator => $iterator}
+									{else}
+										{$column->getValue($row)}
+									{/ifset}
+								</td>
+							{/ifset}
+						{/foreach}
+						<td n:ifset="#cell-actions">{include #cell-actions, row => $row, iterator => $iterator}</td>
+					</tr>
+				{/ifset}
+			{/foreach}
+		</tbody>
+	</table>
+	{ifset #paginator}
+		{include #paginator, paginator => $paginator}
+	{else}
+		<div n:if="$paginator->pageCount > 1" class="paginator pull-right">
+			<span class="current-page">{$paginator->page} / {$paginator->pageCount}</span>
+			<div class="btn-group">
+				<a {if !$paginator->isFirst()}href="{link paginate!, $paginator->page - 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isFirst() ? 'disabled'" data-toggle="tooltip" data-placement="bottom" title="{_labels.paginator.previous}">
+					<i class="fa fa-angle-left"></i>
+				</a>
+				<a {if !$paginator->isLast()}href="{link paginate!, $paginator->page + 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isLast() ? 'disabled'" data-toggle="tooltip"  data-placement="bottom" title="{_labels.paginator.next}">
+					<i class="fa fa-angle-right"></i>
+				</a>
+			</div>
+		</div>
+	{/ifset}
+</div>
+{/snippet}
