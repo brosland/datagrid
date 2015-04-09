@@ -16,7 +16,7 @@
 						</a>
 					</th>
 				{/foreach}
-				<th n:ifset="#cell-actions">{ifset #head-cell-actions}{include #head-cell-actions}{/ifset}</th>
+				<th n:ifset="#row-actions">{ifset #head-row-actions}{include #head-row-actions}{/ifset}</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -38,7 +38,7 @@
 								</td>
 							{/ifset}
 						{/foreach}
-						<td n:ifset="#cell-actions">{include #cell-actions, row => $row, iterator => $iterator}</td>
+						<td n:ifset="#row-actions">{include #row-actions, row => $row, iterator => $iterator}</td>
 					</tr>
 				{/ifset}
 			{/foreach}
