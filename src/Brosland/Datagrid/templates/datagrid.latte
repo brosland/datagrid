@@ -15,14 +15,16 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr n:foreach="$data as $row" n:block="row" id="row{$control->getRowIdentifier($row, $iterator)}">
-					{foreach $columns as $name => $column}
-						<td n:block="'td-'.$name" class="column-{$name}">
-							{block 'td-inner-'.$name}{$column->getValue($row)}{/block}
-						</td>
-					{/foreach}
-					<td n:ifset="#row-actions">{include #row-actions, row => $row, iterator => $iterator}</td>
-				</tr>
+				{foreach $data as $row}
+					<tr n:block="row" id="row{$control->getRowIdentifier($row, $iterator)}">
+						{foreach $columns as $name => $column}
+							<td n:block="'td-'.$name" class="column-{$name}">
+								{block 'td-inner-'.$name}{$column->getValue($row)}{/block}
+							</td>
+						{/foreach}
+						<td n:ifset="#row-actions">{include #row-actions, row => $row, iterator => $iterator}</td>
+					</tr>
+				{/foreach}
 			</tbody>
 		</table>
 		<div n:block="paginator" n:if="$paginator->pageCount > 1" class="paginator pull-right">
