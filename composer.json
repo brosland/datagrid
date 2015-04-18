@@ -2,7 +2,8 @@
 	"name": "brosland/datagrid",
 	"description": "Simple datagrid for Nette framework.",
 	"keywords": ["nette", "brosland", "datagrid"],
-	"homepage": "",
+	"homepage": "http://bros.land",
+	"license": ["MIT"],
 	"authors": [
 		{
 			"name": "Martin Bros",
@@ -17,6 +18,6 @@
 	"minimum-stability": "dev",
 	"require": {
 		"php": ">= 5.5",
-		"nette/nette": ">= 2.3.0"
+		"nette/nette": "~2.3"
 	}
 }
