@@ -2,7 +2,7 @@
 	<div n:block="datagrid" id="{$control->uniqueId}" class="grid clearfix">
 		<table n:block="table" class="table table-striped">
 			<thead n:block="thead">
-				<tr>
+				<tr n:block="thead-row">
 					{foreach $columns as $name => $column}
 						<th n:block="'th-'.$name" class="column-{$name}">
 							<a n:tag-if="$column->sortable" n:href="sort!, [$name => $control->getNextSortType($name)]" class="ajax clearfix">
@@ -14,7 +14,7 @@
 					<th n:ifset="#row-actions">{ifset #th-actions}{include #th-actions}{/ifset}</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody n:block="tbody">
 				{foreach $data as $row}
 					<tr n:block="row" id="row{$control->getRowIdentifier($row, $iterator)}">
 						{foreach $columns as $name => $column}
