@@ -39,10 +39,6 @@ class Datagrid extends \Nette\Application\UI\Control
 	 */
 	private $rowIdentifierCallback = NULL;
 	/**
-	 * @var string
-	 */
-	private $customTemplatePath = NULL;
-	/**
 	 * @var Paginator
 	 */
 	private $paginator;
@@ -96,17 +92,6 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
-	 * @param string $path
-	 * @return self
-	 */
-	public function setCustomTemplate($path)
-	{
-		$this->customTemplatePath = $path;
-
-		return $this;
-	}
-
-	/**
 	 * @return array
 	 */
 	private function getData()
@@ -116,8 +101,7 @@ class Datagrid extends \Nette\Application\UI\Control
 			throw new \Nette\InvalidStateException('Datasource callback is undefined.');
 		}
 
-		return Callback::invokeArgs($this->datasourceCallback,
-				array (
+		return Callback::invokeArgs($this->datasourceCallback, array (
 				$this->sortBy, $this->paginator
 		));
 	}
@@ -186,15 +170,28 @@ class Datagrid extends \Nette\Application\UI\Control
 		
 	}
 
-	public function render()
+	protected function beforeRender()
 	{
 		$this->paginator->setItemsPerPage($this->perPage);
 
-		$this->template->setFile(__DIR__ . '/templates/datagrid.latte');
 		$this->template->columns = $this->columns;
 		$this->template->data = $this->getData();
-		$this->template->customTemplatePath = $this->customTemplatePath;
 		$this->template->paginator = $this->paginator;
+	}
+
+	public function render()
+	{
+		$this->beforeRender();
+
+		if ($this->template->getFile() == NULL)
+		{
+			$this->template->setFile(__DIR__ . '/templates/datagrid.latte');
+		}
+		else
+		{
+			$this->template->datagridTemplate = __DIR__ . '/templates/datagrid.latte';
+		}
+
 		$this->template->render();
 	}
 
