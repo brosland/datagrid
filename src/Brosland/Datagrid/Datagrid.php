@@ -25,11 +25,11 @@ class Datagrid extends \Nette\Application\UI\Control
 	 * @persistent
 	 * @var array
 	 */
-	public $sortBy = array ();
+	public $sortBy = [];
 	/**
 	 * @var Column[]
 	 */
-	private $columns = array ();
+	private $columns = [];
 	/**
 	 * @var callable
 	 */
@@ -92,21 +92,6 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
-	 * @return array
-	 */
-	private function getData()
-	{
-		if (!$this->datasourceCallback)
-		{
-			throw new \Nette\InvalidStateException('Datasource callback is undefined.');
-		}
-
-		return Callback::invokeArgs($this->datasourceCallback, array (
-				$this->sortBy, $this->paginator
-		));
-	}
-
-	/**
 	 * @param mixin $row
 	 * @param \Latte\Runtime\CachingIterator $iterator
 	 * @return mixin
@@ -146,7 +131,7 @@ class Datagrid extends \Nette\Application\UI\Control
 		$this->configure($component);
 
 		// sorting validation
-		$directions = array (self::SORT_ASC, self::SORT_DESC);
+		$directions = [self::SORT_ASC, self::SORT_DESC];
 
 		foreach ($this->sortBy as $column => $direction)
 		{
@@ -170,12 +155,31 @@ class Datagrid extends \Nette\Application\UI\Control
 		
 	}
 
+	/**
+	 * @return \Nette\Application\UI\ITemplate
+	 */
+	protected function createTemplate()
+	{
+		$template = parent::createTemplate();
+		$template->datagridTemplate = $defaultPath = __DIR__ . '/templates/datagrid.latte';
+		$template->setFile($defaultPath);
+
+		return $template;
+	}
+
 	protected function beforeRender()
 	{
 		$this->paginator->setItemsPerPage($this->perPage);
 
+		if (!$this->datasourceCallback)
+		{
+			throw new \Nette\InvalidStateException('Datasource callback is not defined.');
+		}
+
+		$data = Callback::invokeArgs($this->datasourceCallback, [$this->sortBy, $this->paginator]);
+
 		$this->template->columns = $this->columns;
-		$this->template->data = $this->getData();
+		$this->template->data = $data;
 		$this->template->paginator = $this->paginator;
 	}
 
@@ -183,22 +187,13 @@ class Datagrid extends \Nette\Application\UI\Control
 	{
 		$this->beforeRender();
 
-		if ($this->template->getFile() == NULL)
-		{
-			$this->template->setFile(__DIR__ . '/templates/datagrid.latte');
-		}
-		else
-		{
-			$this->template->datagridTemplate = __DIR__ . '/templates/datagrid.latte';
-		}
-
 		$this->template->render();
 	}
 
 	/**
 	 * @param array $sortBy
 	 */
-	public function handleSort(array $sortBy = array ())
+	public function handleSort(array $sortBy = [])
 	{
 		$this->redrawControl();
 	}

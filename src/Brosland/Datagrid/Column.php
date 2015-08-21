@@ -77,10 +77,10 @@ class Column extends \Nette\Object
 	{
 		if ($this->valueCallback === NULL)
 		{
-			return is_array($row) ? $row[$this->name] . '(array)' : $row->{$this->name} . '(object)';
+			return is_array($row) ? $row[$this->name] : $row->{$this->name};
 		}
 
-		return Callback::invokeArgs($this->valueCallback, array ($row));
+		return Callback::invokeArgs($this->valueCallback, [$row]);
 	}
 
 	/**
