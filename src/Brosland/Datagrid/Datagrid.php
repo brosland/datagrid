@@ -34,15 +34,15 @@ class Datagrid extends \Nette\Application\UI\Control
 	/**
 	 * @var Paginator
 	 */
-	private $paginator;
+	protected $paginator;
 	/**
 	 * @var Column[]
 	 */
-	private $columns = [];
+	protected $columns = [];
 	/**
 	 * @var Closure
 	 */
-	private $datasourceCallback = NULL, $rowIdentifierCallback = NULL;
+	protected $datasourceCallback = NULL, $rowIdentifierCallback = NULL;
 
 
 	public function __construct()
