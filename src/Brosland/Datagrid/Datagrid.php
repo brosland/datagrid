@@ -57,14 +57,33 @@ class Datagrid extends \Nette\Application\UI\Control
 	 * @return Column
 	 * @throws \Nette\InvalidArgumentException
 	 */
-	public function addColumn($name, $label = NULL)
+	public function addColumn($name, $label = NULL, $insertBefore = NULL)
 	{
 		if (isset($this->columns[$name]))
 		{
-			throw new \Nette\InvalidArgumentException('Column with name "' . $name . '" already exists.');
+			throw new \Nette\InvalidArgumentException("Column with name $name already exists.");
 		}
 
-		return $this->columns[$name] = new Column($name, $label);
+		$column = new Column($name, $label);
+
+		if ($insertBefore == NULL)
+		{
+			$this->columns[$name] = $column;
+		}
+		else
+		{
+			$index = array_search($insertBefore, array_keys($this->columns));
+
+			if ($index === FALSE)
+			{
+				throw new \Nette\InvalidArgumentException("Column with name $insertBefore doesn't exist.");
+			}
+
+			$this->columns = array_slice($this->columns, 0, $index, TRUE) +
+				[$name => $column] + array_slice($this->columns, $index, NULL, TRUE);
+		}
+
+		return $column;
 	}
 
 	/**
