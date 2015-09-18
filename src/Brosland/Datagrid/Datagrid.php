@@ -3,6 +3,7 @@
 namespace Brosland\Datagrid;
 
 use Brosland\Datagrid\Column,
+	Closure,
 	Nette\Application\UI\Presenter,
 	Nette\Utils\Callback,
 	Nette\Utils\Paginator;
@@ -13,35 +14,35 @@ class Datagrid extends \Nette\Application\UI\Control
 
 
 	/**
-	 * @var int
+	 * @persistent
+	 * @var array
 	 */
-	public $perPage = 20;
+	public $sortBy = [];
 	/**
 	 * @persistent
 	 * @var int
 	 */
 	public $page = 0;
 	/**
-	 * @persistent
-	 * @var array
+	 * @var Closure[]
 	 */
-	public $sortBy = [];
+	public $filter = [];
+	/**
+	 * @var int
+	 */
+	public $perPage = 20;
+	/**
+	 * @var Paginator
+	 */
+	private $paginator;
 	/**
 	 * @var Column[]
 	 */
 	private $columns = [];
 	/**
-	 * @var callable
+	 * @var Closure
 	 */
-	private $datasourceCallback = NULL;
-	/**
-	 * @var callable
-	 */
-	private $rowIdentifierCallback = NULL;
-	/**
-	 * @var Paginator
-	 */
-	private $paginator;
+	private $datasourceCallback = NULL, $rowIdentifierCallback = NULL;
 
 
 	public function __construct()
@@ -87,24 +88,22 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
-	 * @param callable $callback
+	 * @param Closure $callback
 	 * @return self
 	 */
-	public function setDatasourceCallback($callback)
+	public function setDatasourceCallback(Closure $callback)
 	{
-		Callback::check($callback);
 		$this->datasourceCallback = $callback;
 
 		return $this;
 	}
 
 	/**
-	 * @param string|callable $callback
+	 * @param Closure $callback
 	 * @return self
 	 */
-	public function setRowIdentifierCallback($callback)
+	public function setRowIdentifierCallback(Closure $callback)
 	{
-		Callback::check($callback);
 		$this->rowIdentifierCallback = $callback;
 
 		return $this;
@@ -175,6 +174,33 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
+	 * @param array $sortBy
+	 * @param Paginator $paginator
+	 * @return mixed
+	 */
+	protected function loadData(array $sortBy, Paginator $paginator)
+	{
+		if (!$this->datasourceCallback)
+		{
+			throw new \Nette\InvalidStateException('Datasource callback is not defined.');
+		}
+
+		$datasource = Callback::invokeArgs($this->datasourceCallback, [$paginator]);
+
+		foreach ($this->filter as $modifier)
+		{
+			$modifier($datasource);
+		}
+
+		foreach ($sortBy as $column => $direction)
+		{
+			$this->columns[$column]->applySorting($datasource, $direction);
+		}
+
+		return $datasource;
+	}
+
+	/**
 	 * @return \Nette\Application\UI\ITemplate
 	 */
 	protected function createTemplate()
@@ -190,15 +216,8 @@ class Datagrid extends \Nette\Application\UI\Control
 	{
 		$this->paginator->setItemsPerPage($this->perPage);
 
-		if (!$this->datasourceCallback)
-		{
-			throw new \Nette\InvalidStateException('Datasource callback is not defined.');
-		}
-
-		$data = Callback::invokeArgs($this->datasourceCallback, [$this->sortBy, $this->paginator]);
-
 		$this->template->columns = $this->columns;
-		$this->template->data = $data;
+		$this->template->data = $this->loadData($this->sortBy, $this->paginator);
 		$this->template->paginator = $this->paginator;
 	}
 

@@ -2,7 +2,8 @@
 
 namespace Brosland\Datagrid;
 
-use Nette\Utils\Callback;
+use Closure,
+	Nette\Utils\Callback;
 
 class Column extends \Nette\Object
 {
@@ -15,13 +16,9 @@ class Column extends \Nette\Object
 	 */
 	private $label;
 	/**
-	 * @var bool
+	 * @var Closure
 	 */
-	private $sortable = FALSE;
-	/**
-	 * @var callable
-	 */
-	private $valueCallback = NULL;
+	private $sortCallback = NULL, $valueCallback = NULL;
 
 
 	/**
@@ -55,18 +52,30 @@ class Column extends \Nette\Object
 	 */
 	public function isSortable()
 	{
-		return $this->sortable;
+		return $this->sortCallback != NULL;
 	}
 
 	/**
-	 * @param bool $sortable
+	 * @param Closure $callback
 	 * @return self
 	 */
-	public function setSortable($sortable = TRUE)
+	public function setSortable(Closure $callback)
 	{
-		$this->sortable = $sortable;
+		$this->sortCallback = $callback;
 
 		return $this;
+	}
+
+	/**
+	 * @param mixed $datasource
+	 * @param string $direction
+	 */
+	public function applySorting($datasource, $direction)
+	{
+		if ($this->isSortable())
+		{
+			Callback::invokeArgs($this->sortCallback, [$datasource, $direction]);
+		}
 	}
 
 	/**
@@ -84,12 +93,11 @@ class Column extends \Nette\Object
 	}
 
 	/**
-	 * @param callable $callback
+	 * @param Closure $callback
 	 * @return self
 	 */
-	public function setValueCallback($callback)
+	public function setValueCallback(Closure $callback)
 	{
-		Callback::check($callback);
 		$this->valueCallback = $callback;
 
 		return $this;
