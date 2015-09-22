@@ -30,10 +30,10 @@
 		<div n:block="paginator" n:if="$paginator->pageCount > 1" class="paginator pull-right">
 			<span class="current-page">{$paginator->page} / {$paginator->pageCount}</span>
 			<div class="btn-group">
-				<a {if !$paginator->isFirst()}href="{link paginate!, $paginator->page - 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isFirst() ? 'disabled'" data-toggle="tooltip" data-placement="bottom" title="{_datagrid.previous}">
+				<a {if !$paginator->isFirst()}href="{link paginate!, $paginator->page - 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isFirst() ? 'disabled'" data-toggle="tooltip" data-placement="top" title="{_datagrid.previous}">
 					<i class="fa fa-angle-left"></i>
 				</a>
-				<a {if !$paginator->isLast()}href="{link paginate!, $paginator->page + 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isLast() ? 'disabled'" data-toggle="tooltip"  data-placement="bottom" title="{_datagrid.next}">
+				<a {if !$paginator->isLast()}href="{link paginate!, $paginator->page + 1}"{/if} n:class="'btn btn-default ajax tooltip-toggle', $paginator->isLast() ? 'disabled'" data-toggle="tooltip"  data-placement="top" title="{_datagrid.next}">
 					<i class="fa fa-angle-right"></i>
 				</a>
 			</div>
