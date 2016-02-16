@@ -15,7 +15,6 @@
 			"Brosland\\Datagrid\\": "src/"
 		}
 	},
-	"minimum-stability": "dev",
 	"require": {
 		"php": ">= 5.5",
 		"nette/nette": "~2.3"

@@ -1,32 +1,34 @@
 {snippet datagrid}
 	<div n:block="datagrid" id="{$control->uniqueId}" class="grid clearfix">
-		<table n:block="table" class="table table-striped">
-			<thead n:block="thead">
-				<tr n:block="thead-row">
-					{foreach $columns as $name => $column}
-						<th n:block="'th-'.$name" class="column-{$name}">
-							<a n:tag-if="$column->sortable" n:href="sort!, [$name => $control->getNextSortType($name)]" class="ajax clearfix">
-								<span n:block="th-label-{$name}" class="pull-left">{_$column->label}</span>
-								<span n:if="isset($control->sortBy[$name])" class="pull-right fa fa-caret-{if $control->sortBy[$name] == $control::SORT_ASC}up{else}down{/if}"></span>
-							</a>
-						</th>
-					{/foreach}
-					<th n:ifset="#row-actions">{ifset #th-actions}{include #th-actions}{/ifset}</th>
-				</tr>
-			</thead>
-			<tbody n:block="tbody">
-				{foreach $data as $row}
-					<tr n:block="row" id="row{$control->getRowIdentifier($row, $iterator)}">
+		<div class="table-responsive">
+			<table n:block="table" class="table table-striped">
+				<thead n:block="thead">
+					<tr n:block="thead-row">
 						{foreach $columns as $name => $column}
-							<td n:block="'td-'.$name" class="column-{$name}">
-								{block 'td-inner-'.$name}{$column->getValue($row)}{/block}
-							</td>
+							<th n:block="'th-'.$name" class="column-{$name}">
+								<a n:tag-if="$column->sortable" n:href="sort!, [$name => $control->getNextSortType($name)]" class="ajax clearfix">
+									<span n:block="th-label-{$name}" class="pull-left">{_$column->label}</span>
+									<span n:if="isset($control->sortBy[$name])" class="pull-right fa fa-caret-{if $control->sortBy[$name] == $control::SORT_ASC}up{else}down{/if}"></span>
+								</a>
+							</th>
 						{/foreach}
-						<td n:ifset="#row-actions">{include #row-actions, row => $row, iterator => $iterator}</td>
+						<th n:ifset="#row-actions">{ifset #th-actions}{include #th-actions}{/ifset}</th>
 					</tr>
-				{/foreach}
-			</tbody>
-		</table>
+				</thead>
+				<tbody n:block="tbody">
+					{foreach $data as $row}
+						<tr n:block="row" id="row{$control->getRowIdentifier($row, $iterator)}">
+							{foreach $columns as $name => $column}
+								<td n:block="'td-'.$name" class="column-{$name}">
+									{block 'td-inner-'.$name}{$column->getValue($row)}{/block}
+								</td>
+							{/foreach}
+							<td n:ifset="#row-actions">{include #row-actions, row => $row, iterator => $iterator}</td>
+						</tr>
+					{/foreach}
+				</tbody>
+			</table>
+		</div>
 		<div n:block="paginator" n:if="$paginator->pageCount > 1" class="paginator pull-right">
 			<span class="current-page">{$paginator->page} / {$paginator->pageCount}</span>
 			<div class="btn-group">
