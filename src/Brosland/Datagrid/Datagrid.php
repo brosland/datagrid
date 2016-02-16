@@ -9,7 +9,8 @@ use Brosland\Datagrid\Column,
 
 class Datagrid extends \Nette\Application\UI\Control
 {
-	const SORT_ASC = 'ASC', SORT_DESC = 'DESC';
+
+	const SORT_ASC = 'ASC', SORT_DESC = 'DESC', VIEW_DEFAULT = 'default';
 
 
 	/**
@@ -42,6 +43,10 @@ class Datagrid extends \Nette\Application\UI\Control
 	 * @var Paginator
 	 */
 	private $paginator;
+	/**
+	 * @var string
+	 */
+	private $view = self::VIEW_DEFAULT;
 
 
 	public function __construct()
@@ -49,6 +54,17 @@ class Datagrid extends \Nette\Application\UI\Control
 		parent::__construct();
 
 		$this->paginator = new Paginator();
+	}
+
+	/**
+	 * @param string $view
+	 * @return self
+	 */
+	public function setView($view)
+	{
+		$this->view = $view;
+
+		return $this;
 	}
 
 	/**
@@ -175,13 +191,35 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
+	 * @return string
+	 */
+	protected function formatTemplatePath()
+	{
+		$reflection = $this->getReflection();
+		$className = $reflection->getShortName();
+
+		return dirname($reflection->getFileName()) . '/templates/'
+			. $className . '/' . $this->view . '.latte';
+	}
+
+	/**
 	 * @return \Nette\Application\UI\ITemplate
 	 */
 	protected function createTemplate()
 	{
 		$template = parent::createTemplate();
-		$template->datagridTemplate = $defaultPath = __DIR__ . '/templates/datagrid.latte';
-		$template->setFile($defaultPath);
+		$template->datagridTemplate = $defaultTemplatePath = __DIR__ . '/templates/datagrid.latte';
+
+		$templatePath = $this->formatTemplatePath();
+
+		if (file_exists($templatePath))
+		{
+			$template->setFile($templatePath);
+		}
+		else
+		{
+			$template->setFile($defaultTemplatePath);
+		}
 
 		return $template;
 	}
