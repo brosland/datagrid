@@ -44,6 +44,10 @@ class Datagrid extends \Nette\Application\UI\Control
 	 */
 	private $paginator;
 	/**
+	 * @var mixin
+	 */
+	private $data = NULL;
+	/**
 	 * @var string
 	 */
 	private $view = self::VIEW_DEFAULT;
@@ -152,6 +156,25 @@ class Datagrid extends \Nette\Application\UI\Control
 	}
 
 	/**
+	 * @param boolean $refresh
+	 * @return mixin
+	 */
+	public function getData()
+	{
+		if ($this->datasourceCallback == NULL)
+		{
+			throw new \Nette\InvalidStateException('Datasource callback is not defined.');
+		}
+
+		if ($this->data === NULL)
+		{
+			$this->data = Callback::invokeArgs($this->datasourceCallback, [$this->sortBy, $this->paginator]);
+		}
+
+		return $this->data;
+	}
+
+	/**
 	 * @param \Nette\ComponentModel\IComponent $component
 	 */
 	protected function attached($component)
@@ -179,7 +202,8 @@ class Datagrid extends \Nette\Application\UI\Control
 			}
 		}
 
-		$this->paginator->setPage($this->page);
+		$this->paginator->setPage($this->page)
+			->setItemsPerPage($this->perPage);
 	}
 
 	/**
@@ -226,17 +250,8 @@ class Datagrid extends \Nette\Application\UI\Control
 
 	protected function beforeRender()
 	{
-		$this->paginator->setItemsPerPage($this->perPage);
-
-		if (!$this->datasourceCallback)
-		{
-			throw new \Nette\InvalidStateException('Datasource callback is not defined.');
-		}
-
-		$data = Callback::invokeArgs($this->datasourceCallback, [$this->sortBy, $this->paginator]);
-
 		$this->template->columns = $this->columns;
-		$this->template->data = $data;
+		$this->template->data = $this->getData();
 		$this->template->paginator = $this->paginator;
 	}
 
